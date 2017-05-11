@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 3.5)
+project(megrez)
+set(PROJECT_NAME megrez)
+
+set(SOURCE_FILES include/megrez_utility.hpp src/megrez_utility.cpp include/megrez.hpp src/megrez.cpp include/megrez_smallvec.hpp src/megrez_smallvec.cpp include/megrez_constants.hpp)
+set(CMAKE_CXX_STANDARD 11)
+
+set(CMAKE_BUILD_TYPE Release)
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+if (CYGWIN)
+    set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/../dd1d/cmake-build-debug/)
+endif (CYGWIN)
+
+set(MEGREZ_VERSION_MAJOR 1)
+set(MEGREZ_VERSION_MINOR 0)
+set(MEGREZ_VERSION_PATCH 0)
+set(MEGREZ_VERSION ${MEGREZ_VERSION_MAJOR}.${MEGREZ_VERSION_MINOR}.${MEGREZ_VERSION_PATCH})
+target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11 -Wall -O3 -DNDEBUG -march=native -DBOOST_UBLAS_NDEBUG)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${MEGREZ_VERSION} SOVERSION ${MEGREZ_VERSION_MAJOR} )
+if (NOT WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+endif (NOT WIN32)
+
+set(TEST_EXE test_run_megrez)
+add_executable(${TEST_EXE} ${SOURCE_FILES} src/test.cpp)
+target_compile_options(${TEST_EXE} PUBLIC -std=c++11 -Wall)# -O3 -DNDEBUG -DBOOST_UBLAS_NDEBUG)
+
+if (APPLE)
+    target_include_directories(${PROJECT_NAME} PUBLIC /opt/local/include /opt/local/include/openmpi-mp)
+    target_include_directories(${TEST_EXE} PUBLIC /opt/local/include /opt/local/include/openmpi-mp)
+endif (APPLE)
